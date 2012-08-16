@@ -1,5 +1,6 @@
 package pignlproc.storage;
 
+import java.io.FileDescriptor;
 import java.io.IOException;
 import java.util.Arrays;
 
@@ -67,6 +68,7 @@ public class ParsingWikipediaLoader extends RawWikipediaLoader implements
         }
     }
 
+    //Chris: wrapping each bag in a tuple
     @Override
     public ResourceSchema getSchema(String location, Job job)
             throws IOException {
@@ -77,12 +79,11 @@ public class ParsingWikipediaLoader extends RawWikipediaLoader implements
         schema.add(new FieldSchema("text", DataType.CHARARRAY));
         schema.add(new FieldSchema("redirect", DataType.CHARARRAY));
 
-		// wrapping each bag in a tuple
-
         Schema linkInfoSchema = new Schema();
         linkInfoSchema.add(new FieldSchema("target", DataType.CHARARRAY));
         linkInfoSchema.add(new FieldSchema("begin", DataType.INTEGER));
         linkInfoSchema.add(new FieldSchema("end", DataType.INTEGER));
+
         Schema linkInfoWrapper = new Schema(new FieldSchema ("t", linkInfoSchema));
         linkInfoWrapper.setTwoLevelAccessRequired(true);
         schema.add(new FieldSchema("links", linkInfoWrapper, DataType.BAG));
@@ -91,14 +92,17 @@ public class ParsingWikipediaLoader extends RawWikipediaLoader implements
         headerInfoSchema.add(new FieldSchema("tagname", DataType.CHARARRAY));
         headerInfoSchema.add(new FieldSchema("begin", DataType.INTEGER));
         headerInfoSchema.add(new FieldSchema("end", DataType.INTEGER));
+
         Schema headerInfoWrapper = new Schema(new FieldSchema("t", headerInfoSchema));
         headerInfoWrapper.setTwoLevelAccessRequired(true);
         schema.add(new FieldSchema("headers", headerInfoWrapper, DataType.BAG));
+
 
         Schema paragraphInfoSchema = new Schema();
         paragraphInfoSchema.add(new FieldSchema("tagname", DataType.CHARARRAY));
         paragraphInfoSchema.add(new FieldSchema("begin", DataType.INTEGER));
         paragraphInfoSchema.add(new FieldSchema("end", DataType.INTEGER));
+
         Schema paragraphInfoWrapper = new Schema(new FieldSchema("t", paragraphInfoSchema));
         paragraphInfoWrapper.setTwoLevelAccessRequired(true);
         schema.add(new FieldSchema("paragraphs", paragraphInfoWrapper, DataType.BAG));

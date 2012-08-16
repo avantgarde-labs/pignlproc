@@ -8,15 +8,11 @@ TODO think about efficiency:
  - accumulator / algebraic interfaces apply?
  - pig.cachedbag.memusage, pig.skewed.join.reduce.memusage
  - compression of intermediates (LZO)
- - in pignlproc.evaluation.SentencesWithLink
-   - we don't need the paragraphs
-   - we don't need the sentences and the sentence indexes
  - Pig 0.9 supports macros. They could help make the script more readable (esp. redirect resolution)
 */
 
 --Chris: commented out for testing
 SET job.name 'Wikipedia-NERD-Stats for $LANG'
-
 
 -- Register the project jar to use the custom loaders and UDFs
 REGISTER $PIGNLPROC_JAR
@@ -83,15 +79,15 @@ articles = FOREACH parsedNonRedirects GENERATE
   links,
   paragraphs;
 
--- Extract sentence contexts of the links respecting the paragraph boundaries
-sentences = FOREACH articles GENERATE
+-- Extract paragraph contexts of the links 
+paragraphs = FOREACH articles GENERATE
   pageUrl,
-  FLATTEN(pignlproc.evaluation.SentencesWithLink(text, links, paragraphs))
-  AS (sentenceIdx, sentence, targetUri, startPos, endPos);
+  FLATTEN(pignlproc.evaluation.ParagraphsWithLink(text, links, paragraphs))
+  AS (paragraphIdx, paragraph, targetUri, startPos, endPos);
 
 -- Project to three important relations
-pageLinks = FOREACH sentences GENERATE
-  TRIM(SUBSTRING(sentence, startPos, endPos)) AS surfaceForm,
+pageLinks = FOREACH paragraphs GENERATE
+  TRIM(SUBSTRING(paragraph, startPos, endPos)) AS surfaceForm,
   targetUri AS uri,
   pageUrl AS pageUrl;
 
